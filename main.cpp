@@ -1,27 +1,57 @@
-﻿#include <iostream>
+#include <functional>
+#include <iostream>
 #include <stdio.h>
-#include <typeinfo>
+#include <random>
+#include <Windows.h>
 
-template<typename Type>
-Type Min(Type a, Type b) {
-	return a > b ? b : a;
+using namespace std;
+
+typedef void (*pFunction)(int a, int b);
+
+void SetTimeOut(pFunction function, int second, int diceResult, int playerChoice) {
+	Sleep(second * 1000);
+	function(diceResult, playerChoice);
 }
 
-template <typename Type>
-void PrintMin(Type a) {
-	std::cout << typeid(a).name() << ";" << a << std::endl;
+void Result(int diceResult, int playerChoice) {
+	cout << "サイコロの出目は" << diceResult << "で";
+	cout << (diceResult % 2 == 0 ? "偶数" : "奇数") << "です" << endl;
+	
+	if ((diceResult % 2 == 0 && playerChoice == 2) || (diceResult % 2 == 1 && playerChoice == 1)) {
+		cout << "当たり" << endl;
+	}
+	else {
+		cout << "外れ" << endl;
+	}
 }
 
-template<>
-void PrintMin<char>(char a) {
-	std::cout << "文字列以外は代入できません" << std::endl;
+int PlayerChoice() {
+	int playerChoice = 0;
+
+	while (playerChoice != 1 && playerChoice != 2) {
+		cout << "奇数か偶数を選択してEnterを押してください" << std::endl;
+		cout << "1 : 奇数, 2 : 偶数" << endl;
+		cin >> playerChoice;
+	}
+
+	return playerChoice;
 }
 
 int main(void) {
-	PrintMin(Min<int>(7, 12));
-	PrintMin(Min<float>(3.0f, 9.0f));
-	PrintMin(Min<double>(static_cast<double>(4.0f), static_cast<double>(3.0f)));
-	PrintMin(Min<char>('y', 't'));
+	std::random_device rd;
+	std::mt19937 mt(rd());
+
+	int playerChoice = PlayerChoice();
+
+	std::function<int()>diceRoll = [&mt]() {
+		return mt() % 6 + 1;
+		};
+
+	int diceResult = diceRoll();
+
+	pFunction result = Result;
+
+	SetTimeOut(result, 3, diceResult, playerChoice);
 
 	return 0;
 }
