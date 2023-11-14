@@ -1,27 +1,32 @@
-﻿#include <iostream>
-#include <stdio.h>
-#include <typeinfo>
+#include <iostream>
 
-template<typename Type>
-Type Min(Type a, Type b) {
-	return a > b ? b : a;
+uint32_t CalculateRecursivePayment(uint32_t payment, uint32_t hour) {
+	if (hour <= 0) {
+		return payment;
+	}
+
+	return payment + CalculateRecursivePayment(payment * 2 - 50, hour - 1);
 }
 
-template <typename Type>
-void PrintMin(Type a) {
-	std::cout << typeid(a).name() << ";" << a << std::endl;
-}
+uint32_t CalculateGeneralPayment(uint32_t payment, uint32_t hour) {
+	if (hour <= 0) {
+		return payment;
+	}
 
-template<>
-void PrintMin<char>(char a) {
-	std::cout << "文字列以外は代入できません" << std::endl;
+	return payment + CalculateGeneralPayment(payment, hour - 1);
 }
 
 int main(void) {
-	PrintMin(Min<int>(7, 12));
-	PrintMin(Min<float>(3.0f, 9.0f));
-	PrintMin(Min<double>(static_cast<double>(4.0f), static_cast<double>(3.0f)));
-	PrintMin(Min<char>('y', 't'));
+	const uint32_t kHours = 10 - 1;
+	
+	for (uint32_t i = 1; i < kHours; i++) {
+		uint32_t recursivePayment = CalculateRecursivePayment(100, i - 1);
+		uint32_t generalPayment = CalculateGeneralPayment(1072, i - 1);
+
+		std::wcout << i << "時間" << std::endl;
+		std::wcout << "一般的な賃金体制 :" << recursivePayment << std::endl;
+		std::wcout << "再帰的な賃金体制 :" << generalPayment << std::endl;
+	}
 
 	return 0;
 }
